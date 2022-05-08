@@ -20,7 +20,7 @@ public class GameOfLifeFX extends Application {
     private static final int WIDTH = 20;
     private static final int HEIGHT = 20;
 
-    private Grid<Boolean> grid = GameOfLife.loadGridFrom("trafficlight.txt");
+    private Grid<Boolean> grid = GameOfLife.loadGridFrom("GosperGliderGun.txt");
     private Map<String, Rectangle> cache = new HashMap<>();
 
     @Override
@@ -47,7 +47,7 @@ public class GameOfLifeFX extends Application {
 
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.ZERO, event -> grid.evolve()),
-            new KeyFrame(Duration.millis(200), event -> colorGridState())
+            new KeyFrame(Duration.millis(100), event -> colorGridState())
         );
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
