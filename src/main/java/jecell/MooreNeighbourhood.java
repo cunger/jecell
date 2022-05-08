@@ -3,11 +3,10 @@ package jecell;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MooreNeighbourHood extends Neighbourhood {
+public class MooreNeighbourhood extends Neighbourhood {
 
-    public MooreNeighbourHood(int rows, int columns) {
-        this.rows = rows;
-        this.columns = columns;
+    public MooreNeighbourhood(int rows, int columns) {
+        super(rows, columns);
     }
 
     @Override

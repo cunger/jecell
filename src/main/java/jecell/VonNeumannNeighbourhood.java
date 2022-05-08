@@ -3,11 +3,10 @@ package jecell;
 import java.util.HashSet;
 import java.util.Set;
 
-public class VonNeumannNeighbourHood extends Neighbourhood {
+public class VonNeumannNeighbourhood extends Neighbourhood {
 
-    public VonNeumannNeighbourHood(int rows, int columns) {
-        this.rows = rows;
-        this.columns = columns;
+    public VonNeumannNeighbourhood(int rows, int columns) {
+        super(rows, columns);
     }
 
     @Override

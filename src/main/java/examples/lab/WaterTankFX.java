@@ -3,6 +3,7 @@ package examples.lab;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
@@ -16,10 +17,10 @@ import java.util.Map;
 
 public class WaterTankFX  extends Application {
 
-    private static final int WIDTH = 10;
-    private static final int HEIGHT = 100;
+    private static final int WIDTH = 60;
+    private static final int HEIGHT = 60;
 
-    private final Grid<Double> grid = new Lab().grid();
+    private final Grid<CellOccupation> grid = Lab.grid();
     private Map<String, Rectangle> cache = new HashMap<>();
 
     @Override
@@ -27,7 +28,7 @@ public class WaterTankFX  extends Application {
         TilePane tiles = new TilePane();
         tiles.setPrefRows(grid.rows());
         tiles.setPrefColumns(grid.columns());
-        tiles.setStyle("-fx-background-color: aqua;");
+        tiles.setPadding(new Insets(20, 20, 20, 20));
 
         for (int x = 1; x <= grid.rows(); x++) {
             for (int y = 1; y <= grid.columns(); y++) {
@@ -39,28 +40,28 @@ public class WaterTankFX  extends Application {
 
         colorGridState();
 
-        stage.setTitle("Grünalgen-Lab");
+        stage.setTitle("Lab");
         stage.setScene(new Scene(tiles));
         stage.show();
 
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.ZERO, event -> grid.evolve()),
-            new KeyFrame(Duration.millis(400), event -> colorGridState()),
-            new KeyFrame(Duration.ZERO, event -> System.out.println("tick"))
+            new KeyFrame(Duration.millis(500), event -> colorGridState())
         );
-        timeline.setCycleCount(60);
+        timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
 
     private void colorGridState() {
         for (int x = 1; x <= grid.rows(); x++) {
             for (int y = 1; y <= grid.columns(); y++) {
-                double algae = grid.cell(x, y).get();
-                if (Double.isNaN(algae)) return;
-                // TODO Opacity would need normalization to [0,10.
-                double opacity = Math.min(1, Math.max(0, algae));
+                CellOccupation state = grid.cell(x, y).get();
                 Rectangle cell = cache.get(x + " " + y);
-                cell.setFill(Color.rgb(81, 252, 2, opacity));
+                if (state.isOccupied()) {
+                    cell.setFill(Color.rgb(188, 23, 15, 1 - ((double) state.speed() / 10.0)));
+                } else {
+                    cell.setFill(Color.AQUA);
+                }
             }
         }
     }

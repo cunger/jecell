@@ -18,7 +18,7 @@ public class Grid<T> {
         this.rows = rows;
         this.columns = columns;
         this.cells = new HashMap<>();
-        this.neighbourhood = new VonNeumannNeighbourHood(rows, columns);
+        this.neighbourhood = new VonNeumannNeighbourhood(rows, columns);
     }
 
     public Grid<T> wrapHorizontally() {
@@ -34,7 +34,7 @@ public class Grid<T> {
     public Grid<T> useMooreNeighbourhood() {
         boolean wrapHorizontally = neighbourhood.wrapHorizontally;
         boolean wrapVertically = neighbourhood.wrapVertically;
-        neighbourhood = new MooreNeighbourHood(rows, columns);
+        neighbourhood = new MooreNeighbourhood(rows, columns);
         neighbourhood.wrapHorizontally = wrapHorizontally;
         neighbourhood.wrapVertically = wrapVertically;
         return this;
@@ -43,7 +43,16 @@ public class Grid<T> {
     public Grid<T> useVonNeumannNeighbourhood() {
         boolean wrapHorizontally = neighbourhood.wrapHorizontally;
         boolean wrapVertically = neighbourhood.wrapVertically;
-        neighbourhood = new VonNeumannNeighbourHood(rows, columns);
+        neighbourhood = new VonNeumannNeighbourhood(rows, columns);
+        neighbourhood.wrapHorizontally = wrapHorizontally;
+        neighbourhood.wrapVertically = wrapVertically;
+        return this;
+    }
+
+    public Grid<T> useCustomNeighbourhood(Neighbourhood customNeighbourhood) {
+        boolean wrapHorizontally = neighbourhood.wrapHorizontally;
+        boolean wrapVertically = neighbourhood.wrapVertically;
+        neighbourhood = customNeighbourhood;
         neighbourhood.wrapHorizontally = wrapHorizontally;
         neighbourhood.wrapVertically = wrapVertically;
         return this;

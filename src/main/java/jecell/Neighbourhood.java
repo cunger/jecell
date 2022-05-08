@@ -1,7 +1,6 @@
 package jecell;
 
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class Neighbourhood {
@@ -11,6 +10,13 @@ public abstract class Neighbourhood {
 
     protected boolean wrapHorizontally;
     protected boolean wrapVertically;
+
+    public Neighbourhood(int rows, int columns) {
+        this.rows = rows;
+        this.columns = columns;
+        this.wrapHorizontally = false;
+        this.wrapVertically = false;
+    }
 
     public abstract Set<Coordinate> neighbours(int row, int column);
 
@@ -44,7 +50,7 @@ public abstract class Neighbourhood {
         int newColumn = coordinate.column();
 
         if (wrapHorizontally) {
-            while (newColumn < 1) newColumn = columns - coordinate.column();
+            while (newColumn < 1) newColumn = columns + coordinate.column();
             while (newColumn > columns) newColumn = coordinate.column() - columns;
         }
 

@@ -3,16 +3,17 @@ package examples.lab;
 import jecell.CellState;
 import jecell.Coordinate;
 import jecell.Grid;
+import jecell.Neighbourhood;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 public class Lab {
 
-    private final Grid<CellOccupation> grid;
-
-    public Lab() {
+    public static Grid<CellOccupation> grid() {
         Map<Coordinate, Integer> startSpeeds = new HashMap<>();
         startSpeeds.put(new Coordinate(1, 1), 5);
         startSpeeds.put(new Coordinate(1, 3), 1);
@@ -34,21 +35,41 @@ public class Lab {
         };
 
         state_t = s -> {
-            return null;
+            for (int i = 1; i <= 5; i++) {
+                int neighbourSpeed = s.stateOfNeighbour(0, -i).speed();
+                if (neighbourSpeed == i) {
+                    return new CellOccupation(true, neighbourSpeed);
+                }
+            }
+
+            if (s.currentState().isOccupied() && s.currentState().speed() == 0) {
+                return new CellOccupation(true, 0);
+            }
+
+            return new CellOccupation(false, 0);
         };
 
-        grid = new Grid(Double.class, 1, 20)
+        return new Grid(Double.class, 1, 20)
+            .useCustomNeighbourhood(new BackLookingNeighbourhood(1, 20))
             .wrapHorizontally()
-            .useMooreNeighbourhood()
             .initialState(state_0)
             .stateUpdate(state_t);
     }
 
-    public Grid grid() {
-        return grid;
-    }
+    private static class BackLookingNeighbourhood extends Neighbourhood {
+        public BackLookingNeighbourhood(int rows, int columns) {
+            super(rows, columns);
+        }
 
-    public static void main(String[] args) {
-        new Lab();
+        @Override
+        public Set<Coordinate> neighbours(int row, int column) {
+            Set<Coordinate> neighbours = new HashSet<>();
+
+            for (int i = 1; i <= 5; i++) {
+                neighbours.add(wrap(new Coordinate(row, column - i)));
+            }
+
+            return neighbours;
+        }
     }
 }
