@@ -3,7 +3,7 @@
 
 Choose automaton by changing the main class in the POM:
 ```
-<mainClass>examples.algaelab.WaterTankFX</mainClass>
+<mainClass>examples.lab.WaterTankFX</mainClass>
 ```
 or
 ```

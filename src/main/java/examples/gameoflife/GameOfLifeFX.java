@@ -3,6 +3,7 @@ package examples.gameoflife;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
@@ -16,10 +17,10 @@ import java.util.Map;
 
 public class GameOfLifeFX extends Application {
 
-    private static final int WIDTH = 10;
-    private static final int HEIGHT = 10;
+    private static final int WIDTH = 20;
+    private static final int HEIGHT = 20;
 
-    private final Grid<Boolean> grid = new GameOfLife().grid();
+    private Grid<Boolean> grid = GameOfLife.loadGridFrom("trafficlight.txt");
     private Map<String, Rectangle> cache = new HashMap<>();
 
     @Override
@@ -27,7 +28,8 @@ public class GameOfLifeFX extends Application {
         TilePane tiles = new TilePane();
         tiles.setPrefRows(grid.rows());
         tiles.setPrefColumns(grid.columns());
-        tiles.setStyle("-fx-background-color: #494949;");
+        tiles.setPadding(new Insets(20, 20, 20, 20));
+        tiles.setStyle("-fx-background-color: #eeeeee;");
 
         for (int x = 1; x <= grid.rows(); x++) {
             for (int y = 1; y <= grid.columns(); y++) {
@@ -45,9 +47,9 @@ public class GameOfLifeFX extends Application {
 
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.ZERO, event -> grid.evolve()),
-            new KeyFrame(Duration.millis(500), event -> colorGridState())
+            new KeyFrame(Duration.millis(200), event -> colorGridState())
         );
-        timeline.setCycleCount(60);
+        timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
 

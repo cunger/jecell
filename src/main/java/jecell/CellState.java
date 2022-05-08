@@ -2,6 +2,7 @@ package jecell;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public class CellState<T> {
 
@@ -38,5 +39,9 @@ public class CellState<T> {
                 "The cell at " + coordinate + " has no neighbour at " + neighbourCoordinate + "."
             );
         }
+    }
+
+    public long countNeighboursThatSatisfy(Predicate<T> condition) {
+        return neighbourStates.values().stream().filter(s -> condition.test(s)).count();
     }
 }

@@ -1,4 +1,4 @@
-package examples.algaelab;
+package examples.lab;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -16,10 +16,10 @@ import java.util.Map;
 
 public class WaterTankFX  extends Application {
 
-    private static final int WIDTH = 5;
+    private static final int WIDTH = 10;
     private static final int HEIGHT = 100;
 
-    private final Grid<Double> grid = new AlgaeLab().grid();
+    private final Grid<Double> grid = new Lab().grid();
     private Map<String, Rectangle> cache = new HashMap<>();
 
     @Override
@@ -45,7 +45,7 @@ public class WaterTankFX  extends Application {
 
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.ZERO, event -> grid.evolve()),
-            new KeyFrame(Duration.millis(100), event -> colorGridState()),
+            new KeyFrame(Duration.millis(400), event -> colorGridState()),
             new KeyFrame(Duration.ZERO, event -> System.out.println("tick"))
         );
         timeline.setCycleCount(60);
@@ -56,6 +56,8 @@ public class WaterTankFX  extends Application {
         for (int x = 1; x <= grid.rows(); x++) {
             for (int y = 1; y <= grid.columns(); y++) {
                 double algae = grid.cell(x, y).get();
+                if (Double.isNaN(algae)) return;
+                // TODO Opacity would need normalization to [0,10.
                 double opacity = Math.min(1, Math.max(0, algae));
                 Rectangle cell = cache.get(x + " " + y);
                 cell.setFill(Color.rgb(81, 252, 2, opacity));
