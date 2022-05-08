@@ -1,18 +1,21 @@
 package jecell;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 public class Grid<T> {
 
-    private final int rows;
-    private final int columns;
+    protected final int rows;
+    protected final int columns;
 
-    private Map<Integer, Map<Integer, T>> cells;
+    protected Map<Integer, Map<Integer, T>> cells;
 
-    private Neighbourhood neighbourhood;
+    protected Neighbourhood neighbourhood;
 
-    private Function<CellState, T> stateUpdate;
+    protected Function<CellState, T> stateUpdate;
 
     public Grid(Class<T> type, int rows, int columns) {
         this.rows = rows;

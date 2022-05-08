@@ -1,15 +1,10 @@
 package examples.lab;
 
-import jecell.CellState;
 import jecell.Coordinate;
 import jecell.Grid;
-import jecell.Neighbourhood;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 
 public class Lab {
 
@@ -21,55 +16,79 @@ public class Lab {
         startSpeeds.put(new Coordinate(1, 10), 2);
         startSpeeds.put(new Coordinate(1, 13), 5);
 
-        // Initial state
-        Function<Coordinate, CellOccupation> state_0;
-        // State update
-        Function<CellState<CellOccupation>, CellOccupation> state_t;
-
-        state_0 = c -> {
-            if (startSpeeds.containsKey(c)) {
-                return new CellOccupation(true, startSpeeds.get(c));
-            } else {
-                return new CellOccupation(false, 0);
-            }
-        };
-
-        state_t = s -> {
-            for (int i = 1; i <= 5; i++) {
-                int neighbourSpeed = s.stateOfNeighbour(0, -i).speed();
-                if (neighbourSpeed == i) {
-                    return new CellOccupation(true, neighbourSpeed);
-                }
-            }
-
-            if (s.currentState().isOccupied() && s.currentState().speed() == 0) {
-                return new CellOccupation(true, 0);
-            }
-
-            return new CellOccupation(false, 0);
-        };
-
-        return new Grid(Double.class, 1, 20)
-            .useCustomNeighbourhood(new BackLookingNeighbourhood(1, 20))
+        return new WaterTank(1, 20)
+            .useVonNeumannNeighbourhood() // doesn't matter which neighbourhood
             .wrapHorizontally()
-            .initialState(state_0)
-            .stateUpdate(state_t);
+            .initialState(c -> {
+                if (startSpeeds.containsKey(c)) {
+                    return new CellOccupation(true, startSpeeds.get(c));
+                } else {
+                    return new CellOccupation(false, 0);
+                }
+            });
     }
 
-    private static class BackLookingNeighbourhood extends Neighbourhood {
-        public BackLookingNeighbourhood(int rows, int columns) {
-            super(rows, columns);
+    private static class WaterTank extends Grid<CellOccupation> {
+
+        public WaterTank(int rows, int columns) {
+            super(CellOccupation.class, rows, columns);
         }
 
         @Override
-        public Set<Coordinate> neighbours(int row, int column) {
-            Set<Coordinate> neighbours = new HashSet<>();
+        public void evolve() {
+            Map<Integer, Map<Integer, CellOccupation>> newCells = new HashMap<>();
 
-            for (int i = 1; i <= 5; i++) {
-                neighbours.add(wrap(new Coordinate(row, column - i)));
+            for (int x = 1; x <= rows; x++) {
+                newCells.put(x, new HashMap<>());
             }
 
-            return neighbours;
+            for (int x = 1; x <= rows; x++) {
+                for (int y = 1; y <= columns; y++) {
+                    Coordinate coordinate = new Coordinate(x, y);
+                    CellOccupation cell = cells.get(x).get(y);
+
+                    if (cell.isOccupied()) {
+                        Coordinate newCoordinate = neighbourhood.wrap(new Coordinate(x, y + cell.speed()));
+                        int newSpeed;
+                        int distanceAhead = distanceToNextNeighbour(coordinate);
+                        if (distanceAhead < cell.speed()) {
+                            newSpeed = distanceAhead;
+                        } else {
+                            newSpeed = cell.speed();
+                            if (cell.speed() < 5) {
+                                newSpeed += 1;
+                            }
+                        }
+
+                        int newX = newCoordinate.row();
+                        int newY = newCoordinate.column();
+                        newCells.get(newX).put(newY, new CellOccupation(true, newSpeed));
+                    }
+                }
+            }
+
+            // Fill rest of cells with unoccupied state
+            for (int x = 1; x <= rows; x++) {
+                for (int y = 1; y <= columns; y++) {
+                    if (!newCells.get(x).containsKey(y)) {
+                        newCells.get(x).put(y, new CellOccupation(false, 0));
+                    }
+                }
+            }
+
+            cells = newCells;
+        }
+
+        private int distanceToNextNeighbour(Coordinate coordinate) {
+            for (int i = 1; i <= columns; i++) {
+                Coordinate neighbour = neighbourhood.wrap(new Coordinate(coordinate.row(), coordinate.column() + i));
+                CellOccupation neighbourState = cell(neighbour.row(), neighbour.column()).get();
+                if (neighbourState.isOccupied()) {
+                    return i;
+                }
+            }
+
+            return columns;
         }
     }
 }
