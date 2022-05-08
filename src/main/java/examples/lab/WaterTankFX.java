@@ -5,63 +5,66 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import jecell.Grid;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class WaterTankFX  extends Application {
 
     private static final int WIDTH = 60;
     private static final int HEIGHT = 60;
 
-    private final Grid<CellOccupation> grid = Lab.grid();
-    private Map<String, Rectangle> cache = new HashMap<>();
+    private final Grid<Section> grid = Lab.grid();
 
     @Override
     public void start(Stage stage) {
+        stage.setTitle("Lab");
+
         TilePane tiles = new TilePane();
-        tiles.setPrefRows(grid.rows());
+        tiles.setPrefRows(grid.rows() * 10);
         tiles.setPrefColumns(grid.columns());
         tiles.setPadding(new Insets(20, 20, 20, 20));
 
         for (int x = 1; x <= grid.rows(); x++) {
             for (int y = 1; y <= grid.columns(); y++) {
-                Rectangle cell = new Rectangle(WIDTH, HEIGHT);
+                StackPane cell = new StackPane();
+                cell.getChildren().add(new Rectangle(WIDTH, HEIGHT));
                 tiles.getChildren().add(cell);
-                cache.put(x + " " + y, cell);
             }
         }
 
-        colorGridState();
+        paint(tiles);
 
-        stage.setTitle("Lab");
         stage.setScene(new Scene(tiles));
         stage.show();
 
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.ZERO, event -> grid.evolve()),
-            new KeyFrame(Duration.millis(500), event -> colorGridState())
+            new KeyFrame(Duration.millis(2000), event -> paint(tiles))
         );
-        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.setCycleCount(10);
         timeline.play();
     }
 
-    private void colorGridState() {
+    private void paint(TilePane tiles) {
         for (int x = 1; x <= grid.rows(); x++) {
             for (int y = 1; y <= grid.columns(); y++) {
-                CellOccupation state = grid.cell(x, y).get();
-                Rectangle cell = cache.get(x + " " + y);
-                if (state.isOccupied()) {
-                    cell.setFill(Color.rgb(188, 23, 15, 1 - ((double) state.speed() / 10.0)));
-                } else {
-                    cell.setFill(Color.AQUA);
-                }
+                Section state = grid.cell(x, y).get();
+
+                StackPane cell = new StackPane();
+
+                Rectangle crayfish = new Rectangle(WIDTH, HEIGHT);
+                crayfish.setFill(state.isOccupied() ? Color.rgb(188, 23, 15) : Color.AQUA);
+                crayfish.setStroke(Color.AQUA);
+                Text label = new Text(state.isOccupied() ? "" + state.speed() : "");
+
+                cell.getChildren().addAll(crayfish, label);
+                tiles.getChildren().add(cell);
             }
         }
     }
